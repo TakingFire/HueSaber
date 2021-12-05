@@ -104,7 +104,7 @@ function mapEvent(key, value) {
   if (!$(`#${key} .item-header input[type=checkbox]`).is(':checked')) { return; }
   var lcol = localStorage['lcol'];
   var rcol = localStorage['rcol'];
-  var bri = 190;
+  var bri = localStorage['basebri'];
   var over = JSON.parse(localStorage['overlay']);
 
   switch (value) {
@@ -126,12 +126,11 @@ function mapEvent(key, value) {
       changeLight(key, { hex: lcol, bri: 0 }, 750, over);
       break;
   }
-
 }
 
 function handleEvent(result) {
   var type = result['event'];
-  var bri = 190;
+  var bri = (type != 'beatmapEvent') ? localStorage['basebri'] : null;
   var cache, speed, color;
 
   switch (type) {
@@ -337,7 +336,6 @@ $('#minify').on('click', function() {
     $('#group-grid').css({ 'grid-template': '1fr / 1fr 1fr', 'height': '80px' });
     minify = true;
   }
-
 })
 
 $('#reset-prefs').on('click', function() {
