@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>HueSaber</title>
+    <meta name="description" content="Highly configurable Philips Hue integration for Beat Saber. Bring the stage to your room!"/>
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"/>
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script defer type="text/javascript" src="huesaber.js"></script>
+  </head>
+  <body>
+    <div style="position:absolute; top:0; width:100vw; height:36px; -webkit-app-region:drag;"></div>
+    <div id="filter"></div>
+    <div id="content">
+
+      <div class="panel" id="panel-intro">
+        <div style="margin-right:10px">
+        <svg viewBox="3 3 18 18" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 12 15 C 10.34375 15 9 13.65625 9 12 C 9 10.34375 10.34375 9 12 9 C 13.65625 9 15 10.34375 15 12 C 15 13.65625 13.65625 15 12 15 M 12 4.5 C 12.414062 4.5 12.75 4.835938 12.75 5.25 C 12.75 5.664062 12.414062 6 12 6 C 11.585938 6 11.25 5.664062 11.25 5.25 C 11.25 4.835938 11.585938 4.5 12 4.5 M 18 3 L 6 3 C 4.351562 3 3 4.351562 3 6 L 3 18 C 3 19.648438 4.351562 21 6 21 L 18 21 C 19.648438 21 21 19.648438 21 18 L 21 6 C 21 4.351562 19.648438 3 18 3 "/>
+        </svg>
+        <p style="font-weight:400;">Connecting...</p>
+        </div>
+        <div style="max-width:338px;">
+          <p style="font-size:20px; font-weight:700;">Welcome to HueSaber!</p>
+          <p id="intro-main">To get started, press the button on your bridge.<br>Your lights will be detected automatically.</p>
+          <p id="intro-sub" style="color:#9AA1B1; font-weight:400;">If you ever wish to revoke access, you can do so in the options menu.</p>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-options">
+        <div>
+          <p style="margin-bottom:5px;">Options</p>
+
+          <p id="briwarn">Note: Full brightness prevents the Slice effect!</p>
+          <div class="subpanel option" style="border-radius: 10px 10px 0 0; margin-bottom: 0;">
+            <span>Default Brightness:</span>
+            <input id="basebri" type="range" min="1" max="254" value="194">
+          </div>
+
+          <div class="subpanel option" style="border-radius: 0; margin-bottom: 0;">
+            <span>Overlay Colors:<span style="color:#9AA1B1;"> (wip)</span></span>
+            <div>
+              <input id="overlay" type="checkbox">
+              <span class="help" title="Instead of fading to black, lights will use their original state.&#10;Recommended for day use or to reduce flashing.">?</span>
+            </div>
+          </div>
+
+          <button type="button" id="minify" style="width:100%;border-radius:0 0 10px 10px;margin-bottom:15px;">Minify Window</button>
+
+          <button type="button" id="reset-prefs" style="filter:hue-rotate(90deg);border-radius: 10px 10px 0 0;">Reset Preferences</button>
+          <button type="button" id="reset-hub" style="filter:hue-rotate(90deg);border-radius: 0 0 10px 10px;margin-bottom:15px;">Remove Bridge</button>
+
+        </div>
+        <div style="display:flex;">
+          <button type="button" id="done">Done</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-config" style="flex-grow:1.5;">
+        <p id="hubstatus">Waiting for permission...</p>
+
+        <div class="subpanel" id="lightbar">
+          <p class="light-icon" style="justify-content:center;">No Lights Detected</p>
+        </div>
+
+        <div class="subpanel" id="defcols">
+          <p>Base Colors:</p>
+          <div>
+            <input type="color" id="lcol" value="#C81414"> <!--#C220DD 194 32 221-->
+            <input type="color" id="rcol" value="#3030FF"> <!--#00A0FF 0 160 255-->
+          </div>
+        </div>
+
+        <div class="subpanel" id="groups" style="padding-bottom:15px;overflow-y: auto;">
+          <p>Light Groups:</p>
+          <div id="group-grid">
+            <ol id="group1" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+              <p>Drag lights<br>to add</p>
+            </ol>
+            <ol id="group2" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+              <p>Drag lights<br>to add</p>
+            </ol>
+            <ol id="group3" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+              <p>Drag lights<br>to add</p>
+            </ol>
+            <ol id="group4" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+              <p>Drag lights<br>to add</p>
+            </ol>
+          </div>
+        </div>
+
+        <div id="buttons">
+          <div style="flex-grow: 3;">
+            <button type="button" id="start" class="leftbutton" title='Connect to Beat Saber'>Start</button>
+            <button type="button" id="autostart" class="rightbutton" title='Auto Start'>▶</button>
+          </div>
+          <button type="button" id="options" style="margin-right:10px;flex-grow:2;">Options</button>
+          <div style="margin-right:0;">
+            <button type="button" id="exit" class="leftbutton" style="z-index:0;">Exit</button>
+            <button type="button" id="reload" class="rightbutton" title="Refresh Lights" style="z-index:0;font-size:18px;font-weight:700;">⭮</button>
+          </div>
+        </div>
+        <p id="gamestatus">Not Connected</p>
+      </div>
+
+      <div class="panel" id="panel-events" style="padding-right:10px;">
+        <!-- <p>Event List</p> -->
+        <ol id="eventlist">
+        </ol>
+      </div>
+    </div>
+  </body>
+</html>
