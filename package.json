@@ -57,5 +57,5 @@
     "electron": "15.3.0",
     "electron-builder": "^22.13.1"
   },
-  "license": "MIT"
+  "license": "GPL-3.0"
 }
