@@ -324,15 +324,15 @@ var minify = false;
 $('#minify').on('click', function() {
   if (minify) {
     $(this).html('Minify Window');
-    ipcRenderer.send('resize', 600, 500, 800, 500, 1200, 500);
-    $('#panel-events, #hubstatus, #defcols, #group3, #group4').show();
+    ipcRenderer.send('resize', 600, 500, 800, 500, 1000, 500);
+    $('#panel-events, #hubstatus, #defcols, #group3, #group4, #reset-prefs, #reset-hub').show();
     $('#group-grid').css({ 'grid-template': '', 'height': '' });
     minify = false;
   }
   else {
     $(this).html('Restore Window');
     ipcRenderer.send('resize', 400, 310, 400, 310, 600, 310);
-    $('#panel-events, #hubstatus, #defcols, #group3, #group4').hide();
+    $('#panel-events, #hubstatus, #defcols, #group3, #group4, #reset-prefs, #reset-hub').hide();
     $('#group-grid').css({ 'grid-template': '1fr / 1fr 1fr', 'height': '80px' });
     minify = true;
   }
@@ -530,7 +530,7 @@ ipcRenderer.on('close', closeSockets);
 $('#reload').on('click', function() {
   closeSockets();
   location.reload();
-  ipcRenderer.send('resize', 600, 500, 800, 500, 1200, 500);
+  ipcRenderer.send('resize', 600, 500, 800, 500, 1000, 500);
 })
 
 function createEvent(id, name, speed = false, speedval = 0.3, color = false, colorval = '#FFFFFF', enabled = false) {

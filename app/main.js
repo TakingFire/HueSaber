@@ -10,7 +10,7 @@ function createWindow() {
     },
     width: 800,    // 400
     minWidth: 600,
-    maxWidth: 1200,
+    maxWidth: 1000,
     height: 500,   // 330
     minHeight: 500,
     maxHeight: 500,

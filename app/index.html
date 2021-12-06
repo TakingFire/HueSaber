@@ -10,7 +10,7 @@
     <script defer type="text/javascript" src="huesaber.js"></script>
   </head>
   <body>
-    <div style="position:absolute; top:0; width:100vw; height:36px; -webkit-app-region:drag;"></div>
+    <div style="position:absolute;top:0;width:100vw;height:36px;-webkit-app-region:drag;"></div>
     <div id="filter"></div>
     <div id="content">
 
@@ -22,9 +22,9 @@
         <p style="font-weight:400;">Connecting...</p>
         </div>
         <div style="max-width:338px;">
-          <p style="font-size:20px; font-weight:700;">Welcome to HueSaber!</p>
+          <p style="font-size:20px;font-weight:700;">Welcome to HueSaber!</p>
           <p id="intro-main">To get started, press the button on your bridge.<br>Your lights will be detected automatically.</p>
-          <p id="intro-sub" style="color:#9AA1B1; font-weight:400;">If you ever wish to revoke access, you can do so in the options menu.</p>
+          <p id="intro-sub" style="color:#9AA1B1;font-weight:400;">If you ever wish to revoke access, you can do so in the options menu.</p>
         </div>
       </div>
 
@@ -32,13 +32,13 @@
         <div>
           <p style="margin-bottom:5px;">Options</p>
 
-          <p id="briwarn">Note: Full brightness prevents the Slice effect!</p>
-          <div class="subpanel option" style="border-radius: 10px 10px 0 0; margin-bottom: 0;">
+          <p id="briwarn">Note:Full brightness prevents the Slice effect!</p>
+          <div class="subpanel option" style="border-radius:10px 10px 0 0;margin-bottom:0;">
             <span>Default Brightness:</span>
             <input id="basebri" type="range" min="1" max="254" value="194">
           </div>
 
-          <div class="subpanel option" style="border-radius: 0; margin-bottom: 0;">
+          <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
             <span>Overlay Colors:<span style="color:#9AA1B1;"> (wip)</span></span>
             <div>
               <input id="overlay" type="checkbox">
@@ -46,10 +46,18 @@
             </div>
           </div>
 
+          <!-- <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
+            <span>Dark Theme:</span>
+            <div>
+              <input id="darkmode" type="checkbox">
+              <span class="help" style="visibility:hidden;">?</span>
+            </div>
+          </div> -->
+
           <button type="button" id="minify" style="width:100%;border-radius:0 0 10px 10px;margin-bottom:15px;">Minify Window</button>
 
-          <button type="button" id="reset-prefs" style="filter:hue-rotate(90deg);border-radius: 10px 10px 0 0;">Reset Preferences</button>
-          <button type="button" id="reset-hub" style="filter:hue-rotate(90deg);border-radius: 0 0 10px 10px;margin-bottom:15px;">Remove Bridge</button>
+          <button type="button" id="reset-prefs" style="filter:hue-rotate(90deg);border-radius:10px 10px 0 0;">Reset Preferences</button>
+          <button type="button" id="reset-hub" style="filter:hue-rotate(90deg);border-radius:0 0 10px 10px;margin-bottom:15px;">Remove Bridge</button>
 
         </div>
         <div style="display:flex;">
@@ -72,7 +80,7 @@
           </div>
         </div>
 
-        <div class="subpanel" id="groups" style="padding-bottom:15px;overflow-y: auto;">
+        <div class="subpanel" id="groups" style="padding-bottom:15px;overflow-y:auto;">
           <p>Light Groups:</p>
           <div id="group-grid">
             <ol id="group1" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
@@ -91,7 +99,7 @@
         </div>
 
         <div id="buttons">
-          <div style="flex-grow: 3;">
+          <div style="flex-grow:3;">
             <button type="button" id="start" class="leftbutton" title='Connect to Beat Saber'>Start</button>
             <button type="button" id="autostart" class="rightbutton" title='Auto Start'>▶</button>
           </div>
