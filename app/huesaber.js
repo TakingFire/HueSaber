@@ -253,6 +253,8 @@ async function initInterface() {
   $('#basebri').change();
 
   localStorage['overlay'] === (null || undefined) ? localStorage['overlay'] = $('#overlay').prop('checked') : $('#overlay').prop('checked', JSON.parse(localStorage['overlay']));
+  localStorage['darkmode'] === (null || undefined) ? localStorage['darkmode'] = $('#darkmode').prop('checked') : $('#darkmode').prop('checked', JSON.parse(localStorage['darkmode']));
+  $('#darkmode').change();
 
   var bridgeIp = localStorage['bridgeIp'];
   var apiKey = localStorage['apiKey'];
@@ -319,6 +321,43 @@ $('#basebri').on('change', function() {
 $('#overlay').on('change', function() {
   localStorage['overlay'] = $(this).prop('checked');
 });
+
+$('#darkmode').on('change', function() {
+  localStorage['darkmode'] = $(this).prop('checked');
+
+  if ($(this).prop('checked')) {
+    console.log('dark mode')
+    $(':root').css({
+      '--background': '#303035',
+      '--foreground1': '#3D3D43',
+      '--foreground2': '#3D3D4390',
+      '--border1': '#1D1D23',
+      '--border2': '#3D3D43',
+      '--indent': '#28282D',
+      '--shadow1': '#16161B60',
+      '--shadow2': '#16161B60',
+      '--dark': '#B1B1B6',
+      '--mid1': '#89898E',
+      '--mid2': '#7C7C82',
+      '--high': '#65656A',
+    })
+  }
+  else {
+    $(':root').css({
+      '--background': '',
+      '--foreground1': '',
+      '--foreground2': '',
+      '--border1': '',
+      '--border2': '',
+      '--indent': '',
+      '--shadow1': '',
+      '--shadow2': '',
+      '--dark': '',
+      '--mid1': '',
+      '--high': '',
+    })
+  }
+})
 
 var minify = false;
 $('#minify').on('click', function() {
@@ -563,7 +602,7 @@ function createEvent(id, name, speed = false, speedval = 0.3, color = false, col
     </div>`;
   } else { color = '' }
 
-  let listItem = `<li id="${id}" class="list-item" ${enabled ? '' : 'style="filter: contrast(0.6) brightness(1.2)"'}>
+  let listItem = `<li id="${id}" class="list-item" ${enabled ? '' : 'style="filter: opacity(0.75)"'}>
     <div class="subpanel item-header" style="${enabled ? 'border-radius: 10px 10px 0px 0px;' : 'border-radius: 10px;'}">
       <div>
         <input type="checkbox" ${enabled ? 'checked' : ''}>
@@ -614,7 +653,7 @@ $('.item-header input[type=checkbox]').on('change', function() {
     $(this).parents('.list-item').css('filter', 'none').find('.item-body').slideDown(250);
   }
   else {
-    $(this).parents('.list-item').css('filter', 'contrast(0.6) brightness(1.2)').find('.item-body').slideUp(250);
+    $(this).parents('.list-item').css('filter', 'opacity(0.75)').find('.item-body').slideUp(250);
     $(this).parents('.item-header').delay(250).animate({ BorderRadius: '10px' }, 250);
   }
 });

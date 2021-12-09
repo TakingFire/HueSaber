@@ -24,7 +24,7 @@
         <div style="max-width:338px;">
           <p style="font-size:20px;font-weight:700;">Welcome to HueSaber!</p>
           <p id="intro-main">To get started, press the button on your bridge.<br>Your lights will be detected automatically.</p>
-          <p id="intro-sub" style="color:#9AA1B1;font-weight:400;">If you ever wish to revoke access, you can do so in the options menu.</p>
+          <p id="intro-sub" style="color:var(--high);font-weight:400;">If you ever wish to revoke access, you can do so in the options menu.</p>
         </div>
       </div>
 
@@ -32,27 +32,27 @@
         <div>
           <p style="margin-bottom:5px;">Options</p>
 
-          <p id="briwarn">Note:Full brightness prevents the Slice effect!</p>
+          <p id="briwarn">Note: Full brightness prevents the Slice effect!</p>
           <div class="subpanel option" style="border-radius:10px 10px 0 0;margin-bottom:0;">
             <span>Default Brightness:</span>
             <input id="basebri" type="range" min="1" max="254" value="194">
           </div>
 
           <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
-            <span>Overlay Colors:<span style="color:#9AA1B1;"> (wip)</span></span>
+            <span>Overlay Colors:<span style="color:var(--high);"> (wip)</span></span>
             <div>
               <input id="overlay" type="checkbox">
               <span class="help" title="Instead of fading to black, lights will use their original state.&#10;Recommended for day use or to reduce flashing.">?</span>
             </div>
           </div>
 
-          <!-- <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
+          <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
             <span>Dark Theme:</span>
             <div>
               <input id="darkmode" type="checkbox">
               <span class="help" style="visibility:hidden;">?</span>
             </div>
-          </div> -->
+          </div>
 
           <button type="button" id="minify" style="width:100%;border-radius:0 0 10px 10px;margin-bottom:15px;">Minify Window</button>
 
