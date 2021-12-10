@@ -6,7 +6,6 @@ const { Buffer } = require('buffer');
 
 const lightState = {};
 const defState = {};
-const paused = {};
 var webSocket = null;
 var udpSocket = null;
 var streamLoop = null;
@@ -77,24 +76,23 @@ function changeLight(key, data, transition, def = false) {
   (key == 'all' ? '1234' : $(`#${key} select`).val()).split('').forEach(function(num) {
     $(`#group${num} li`).each(function(_, e) {
 
-      if (!paused[e.id]) {
-        if (transition > 0) {
-          $(lightState[e.id]).animate(def ? defState[e.id] : data, {
-            duration: transition, queue: false, step: function() {
-              let state = lightState[e.id];
-              let bri = Math.max(state['bri'], state['bri2']);
-              let color = hex + parseInt(bri).toString(16);
-              $(`[id=${e.id}] svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
-            }
-          })
-        }
-        else {
-          Object.assign(lightState[e.id], def ? defState[e.id] : data);
-          let state = lightState[e.id];
-          let bri = Math.max(state['bri'], state['bri2']);
-          let color = hex + parseInt(bri).toString(16);
-          $(`[id=${e.id}] svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
-        }
+      function changeIcon() {
+        let state = lightState[e.id];
+        let bri = Math.max(state['bri'], state['bri2']);
+        let color = hex + parseInt(bri).toString(16);
+        $(`[id=${e.id}] svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
+      }
+
+      if (transition > 0) {
+        $(lightState[e.id]).animate(def ? defState[e.id] : data, {
+          duration: transition, queue: false, step: function() {
+            changeIcon();
+          }
+        })
+      }
+      else {
+        Object.assign(lightState[e.id], def ? defState[e.id] : data);
+        changeIcon();
       }
     })
   })
@@ -204,7 +202,7 @@ function handleEvent(result) {
 }
 
 function lightIcon(archetype) {
-  let icon
+  let icon;
   switch (archetype) {
     case 'sultanbulb':
       icon = 'M16.727 4.047c1.144 1.055.105 2.988-.247 3.68-.94.277-2.453.523-4.48.523-2.031 0-3.54-.246-4.48-.523-.352-.692-1.391-2.625-.247-3.68C8.496 2.926 11.793 3 12 3c.207 0 3.504-.074 4.727 1.047ZM12 9c1.14 0 2.809-.11 4.152-.414-1.015 3.164-1.191 6.059-1.156 6.879a.745.745 0 0 1-.184.52l-.328.374c-.714.086-1.543.141-2.484.141-.941 0-1.77-.055-2.484-.14l-.329-.376a.745.745 0 0 1-.183-.52c.035-.82-.14-3.714-1.16-6.878C9.19 8.89 10.859 9 12 9Zm-2.25 8.145a24.114 24.114 0 0 0 4.504 0l-.375 2.332a.676.676 0 0 1-.227.43l-.347.32a.533.533 0 0 0-.067.066l-.37.437a.766.766 0 0 1-.59.27h-.548a.76.76 0 0 1-.59-.27l-.37-.437a.533.533 0 0 0-.067-.066l-.351-.32a.69.69 0 0 1-.223-.43Zm0 0';
@@ -231,60 +229,6 @@ function lightIcon(archetype) {
       icon = 'M7.18 9.906c1.414.45 3.48.594 4.82.594 1.34 0 3.406-.145 4.82-.594-.574 1.512-1.574 2.184-1.812 3.594-.106.613-.192 1.473-.133 2.102a.738.738 0 0 1-.668.789c-.648.066-1.383.109-2.207.109-.824 0-1.559-.043-2.207-.11a.735.735 0 0 1-.668-.788c.059-.63-.027-1.489-.133-2.102-.238-1.41-1.234-2.082-1.812-3.594Zm2.57 7.242c.781.075 1.64.102 2.25.102.61 0 1.469-.027 2.25-.102l-.375 2.329a.694.694 0 0 1-.227.43l-.347.32a.533.533 0 0 0-.067.066l-.37.437a.76.76 0 0 1-.59.27h-.547a.76.76 0 0 1-.59-.27l-.371-.437a.533.533 0 0 0-.067-.066l-.347-.32a.694.694 0 0 1-.227-.43ZM12 3c2.89 0 5.25 2.5 5.25 4.875 0 .215-.043.406-.063.605a5.267 5.267 0 0 1-.097.528c-.817.347-2.55.742-5.09.742s-4.273-.395-5.09-.742a5.267 5.267 0 0 1-.098-.528c-.019-.199-.062-.39-.062-.605C6.75 5.5 9.11 3 12 3Zm0 0';
   }
   return icon;
-}
-
-$('#defcols input').on('change', function() {
-  let lcol = $('#lcol').val();
-  let rcol = $('#rcol').val();
-  localStorage['lcol'] = lcol;
-  localStorage['rcol'] = rcol;
-  $('#defcols').css('background-image',
-    `radial-gradient(ellipse at 25% 80%,${lcol}80,transparent 50%),
-   radial-gradient(ellipse at 75% 80%,${rcol}80,transparent 50%)`);
-  console.log(`Base colors: %c${lcol} %c& %c${rcol}`, `color: ${lcol}`, 'color: inherit', `color: ${rcol}`);
-});
-
-async function initInterface() {
-  localStorage['lcol'] === (null || undefined) ? localStorage['lcol'] = $('#lcol').val() : $('#lcol').val(localStorage['lcol']);
-  localStorage['rcol'] === (null || undefined) ? localStorage['rcol'] = $('#rcol').val() : $('#rcol').val(localStorage['rcol']);
-  $('#lcol').change();
-
-  localStorage['basebri'] === (null || undefined) ? localStorage['basebri'] = $('#basebri').val() : $('#basebri').val(localStorage['basebri']);
-  $('#basebri').change();
-
-  localStorage['overlay'] === (null || undefined) ? localStorage['overlay'] = $('#overlay').prop('checked') : $('#overlay').prop('checked', JSON.parse(localStorage['overlay']));
-  localStorage['darkmode'] === (null || undefined) ? localStorage['darkmode'] = $('#darkmode').prop('checked') : $('#darkmode').prop('checked', JSON.parse(localStorage['darkmode']));
-  $('#darkmode').change();
-
-  var bridgeIp = localStorage['bridgeIp'];
-  var apiKey = localStorage['apiKey'];
-  var bridgeConfig = await $.get(`http://${bridgeIp}/api/${apiKey}/config`)
-  $('#hubstatus').html(`Connected to Hub: ${bridgeConfig['name']}`);
-
-  var lights = await $.get(`http://${bridgeIp}/api/${apiKey}/lights`);
-  localStorage['lights'] = JSON.stringify(lights);
-
-  Object.keys(lights).forEach(function(key) {
-    let light = lights[key];
-
-    let arch = light['config']['archetype'];
-    let reachable = light['state']['reachable'];
-    let xy = light['state']['xy'];
-
-    lightState[key] = { x: xy[0], y: xy[1], bri: light['state']['bri'], x2: 0, y2: 0, bri2: 0, boost: 0 };
-    defState[key] = { x: xy[0], y: xy[1], bri: light['state']['bri'] };
-    paused[key] = false;
-
-    let icon = `<div id="${key}" class="light-icon" draggable="true" ondragstart="drag(event)" ${reachable ? '' : 'style="color:#9AA1B1;" title="Not Reachable"'}>
-      <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg" title="${light['productname']}" ${reachable ? '' : 'style="fill:#9AA1B1;"'}>
-        <path d="${lightIcon(arch)}"/>
-      </svg>
-      <span>${light['name']}</span>
-    </div>`;
-
-    $('#lightbar p').hide();
-    $('#lightbar').append(icon);
-  })
 }
 
 function dragarea(e) {
@@ -326,7 +270,6 @@ $('#darkmode').on('change', function() {
   localStorage['darkmode'] = $(this).prop('checked');
 
   if ($(this).prop('checked')) {
-    console.log('dark mode')
     $(':root').css({
       '--background': '#303035',
       '--foreground1': '#3D3D43',
@@ -341,6 +284,7 @@ $('#darkmode').on('change', function() {
       '--mid2': '#7C7C82',
       '--high': '#65656A',
     })
+    $('input[type=checkbox]').css('filter', 'brightness(0.75)');
   }
   else {
     $(':root').css({
@@ -356,6 +300,7 @@ $('#darkmode').on('change', function() {
       '--mid1': '',
       '--high': '',
     })
+    $('input[type=checkbox]').css('filter', '');
   }
 })
 
@@ -454,6 +399,7 @@ async function createEntertainmentArea() {
 }
 
 var started = false;
+var error = false;
 function startWebSocket() {
   webSocket = new WebSocket('ws://localhost:6557/socket');
 
@@ -466,14 +412,16 @@ function startWebSocket() {
 
   webSocket.onclose = function() {
     closeSockets();
-    $('#gamestatus').html('Not Connected');
-    $('#start').html('Start');
+    if (!error) { $('#gamestatus').html('Not Connected') }
+    $('#start').html('Start').prop('disabled', false);
+    error = false;
   }
 
   webSocket.onerror = function() {
     $('#gamestatus').html('Failed to connect! Ensure <a href="https://github.com/opl-/beatsaber-http-status" target="_blank">http-status</a> is installed.');
     $('#start').html('Start').prop('disabled', false);
     started = false;
+    error = true;
   }
 
   webSocket.onmessage = function(msg) {
@@ -534,7 +482,7 @@ async function closeSockets() {
   if (udpSocket) {
     await udpSocket.close();
     udpSocket = null;
-    streamingMode(false);
+    await streamingMode(false);
   }
   if (webSocket) {
     await webSocket.close();
@@ -559,15 +507,15 @@ $('#start').on('click', function() {
   }
 });
 
-$('#exit').on('click', function() {
-  closeSockets();
+$('#exit').on('click', async function() {
+  await closeSockets();
   window.close();
 });
 
 ipcRenderer.on('close', closeSockets);
 
-$('#reload').on('click', function() {
-  closeSockets();
+$('#reload').on('click', async function() {
+  await closeSockets();
   location.reload();
   ipcRenderer.send('resize', 600, 500, 800, 500, 1000, 500);
 })
@@ -647,6 +595,17 @@ createEvent('rla', 'Right Lasers');
 // createEvent('Cut Score', 'scr', true, 0.3, false, null, false);
 // createEvent('Level Score', 'grd', false, null, false, null, false);
 
+$('#defcols input').on('change', function() {
+  let lcol = $('#lcol').val();
+  let rcol = $('#rcol').val();
+  localStorage['lcol'] = lcol;
+  localStorage['rcol'] = rcol;
+  $('#defcols').css('background-image',
+    `radial-gradient(ellipse at 25% 80%,${lcol}80,transparent 50%),
+   radial-gradient(ellipse at 75% 80%,${rcol}80,transparent 50%)`);
+  console.log(`Base colors: %c${lcol} %c& %c${rcol}`, `color: ${lcol}`, 'color: inherit', `color: ${rcol}`);
+});
+
 $('.item-header input[type=checkbox]').on('change', function() {
   if ($(this).is(':checked')) {
     $(this).parents('.item-header').animate({ BorderBottomLeftRadius: '0px', BorderBottomRightRadius: '0px' }, 250);
@@ -675,6 +634,48 @@ $('.list-item select, .list-item input').on('change', function() {
 });
 
 $('#filter, #panel-intro, #panel-options').hide();
+
+async function initInterface() {
+  localStorage['lcol'] === (null || undefined) ? localStorage['lcol'] = $('#lcol').val() : $('#lcol').val(localStorage['lcol']);
+  localStorage['rcol'] === (null || undefined) ? localStorage['rcol'] = $('#rcol').val() : $('#rcol').val(localStorage['rcol']);
+  $('#lcol').change();
+
+  localStorage['basebri'] === (null || undefined) ? localStorage['basebri'] = $('#basebri').val() : $('#basebri').val(localStorage['basebri']);
+  $('#basebri').change();
+
+  localStorage['overlay'] === (null || undefined) ? localStorage['overlay'] = $('#overlay').prop('checked') : $('#overlay').prop('checked', JSON.parse(localStorage['overlay']));
+  localStorage['darkmode'] === (null || undefined) ? localStorage['darkmode'] = $('#darkmode').prop('checked') : $('#darkmode').prop('checked', JSON.parse(localStorage['darkmode']));
+  $('#darkmode').change();
+
+  var bridgeIp = localStorage['bridgeIp'];
+  var apiKey = localStorage['apiKey'];
+  var bridgeConfig = await $.get(`http://${bridgeIp}/api/${apiKey}/config`)
+  $('#hubstatus').html(`Connected to Hub: ${bridgeConfig['name']}`);
+
+  var lights = await $.get(`http://${bridgeIp}/api/${apiKey}/lights`);
+  localStorage['lights'] = JSON.stringify(lights);
+
+  Object.keys(lights).forEach(function(key) {
+    let light = lights[key];
+
+    let arch = light['config']['archetype'];
+    let reachable = light['state']['reachable'];
+    let xy = light['state']['xy'];
+
+    lightState[key] = { x: xy[0], y: xy[1], bri: light['state']['bri'], x2: 0, y2: 0, bri2: 0, boost: 0 };
+    defState[key] = { x: xy[0], y: xy[1], bri: light['state']['bri'] };
+
+    let icon = `<div id="${key}" class="light-icon" draggable="true" ondragstart="drag(event)" ${reachable ? '' : 'style="color:#9AA1B1;" title="Not Reachable"'}>
+      <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg" title="${light['productname']}" ${reachable ? '' : 'style="fill:#9AA1B1;"'}>
+        <path d="${lightIcon(arch)}"/>
+      </svg>
+      <span>${light['name']}</span>
+    </div>`;
+
+    $('#lightbar p').hide();
+    $('#lightbar').append(icon);
+  })
+}
 
 if (localStorage['apiKey'] === (null || undefined)) {
   $('#filter, #panel-intro').fadeIn(750);
