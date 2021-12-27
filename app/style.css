@@ -89,7 +89,7 @@ select {
   position        : relative;
   width           : 100vw;
   height          : 100vh;
-  flex-flow       : row wrap;
+  flex-flow       : row;
   justify-content : center;
 }
 
@@ -239,6 +239,7 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 
 #panel-events {
+  min-width      : max(300px, 40vw);
   max-width      : 400px;
   margin-left    : 20px;
   padding-bottom : 0;
@@ -267,12 +268,16 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 #lightbar {
   display : flex;
-  height  : 64px;
+  overflow-x: auto;
+}
+
+#lightbar::-webkit-scrollbar {
+  height: 8px;
 }
 
 .light-icon {
   display        : flex;
-  min-width      : 34px;
+  min-width      : auto;
   height         : 100%;
   padding        : 3px;
   color          : var(--mid2);
@@ -327,18 +332,19 @@ input[type=range]::-webkit-slider-thumb:hover {
   margin-top    : 5px;
   padding       : 0px 10px;
   grid-gap      : 10px;
-  grid-template : 1fr 1fr / 1fr 1fr;
+  grid-template : auto auto / auto auto;
 }
 
 .group {
   margin           : 0px 0px;
+  height: auto;
   padding          : 5px;
   color            : var(--dark);
   border-radius    : 10px;
   background-color : var(--indent);
   box-shadow       : inset 1px 1px 4px var(--shadow1);
-  flex-grow        : 1;
   list-style-type  : none;
+  overflow-y:auto;
 }
 
 .group::-webkit-scrollbar-thumb {
