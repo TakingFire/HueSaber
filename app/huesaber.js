@@ -659,14 +659,15 @@ async function initInterface() {
     let light = lights[key];
 
     let arch = light['config']['archetype'];
-    let reachable = light['state']['reachable'];
-    let xy = light['state']['xy'];
+    let active = light['state']['reachable'];
+    let xy = light['state']['xy'] || [0, 0];
+    let bri = light['state']['bri'];
 
-    lightState[key] = { x: xy[0], y: xy[1], bri: light['state']['bri'], x2: 0, y2: 0, bri2: 0, boost: 0 };
-    defState[key] = { x: xy[0], y: xy[1], bri: light['state']['bri'] };
+    lightState[key] = { active: active, x: xy[0], y: xy[1], bri: bri, x2: 0, y2: 0, bri2: 0, boost: 0 };
+    defState[key] = { x: xy[0], y: xy[1], bri: bri };
 
-    let icon = `<div id="${key}" class="light-icon" draggable="true" ondragstart="drag(event)" ${reachable ? '' : 'style="color:#9AA1B1;" title="Not Reachable"'}>
-      <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg" title="${light['productname']}" ${reachable ? '' : 'style="fill:#9AA1B1;"'}>
+    let icon = `<div id="${key}" class="light-icon" draggable="true" ondragstart="drag(event)" ${active ? '' : 'style="color:#9AA1B1;" title="Not Reachable"'}>
+      <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg" title="${light['productname']}" ${active ? '' : 'style="fill:#9AA1B1;"'}>
         <path d="${lightIcon(arch)}"/>
       </svg>
       <span>${light['name']}</span>
