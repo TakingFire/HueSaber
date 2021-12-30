@@ -47,14 +47,24 @@
           </div>
 
           <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
-            <span>Dark Theme:</span>
+            <span>Window Theme:</span>
             <div>
-              <input id="darkmode" type="checkbox">
-              <span class="help" style="visibility:hidden;">?</span>
+              <select id="theme" value="full" style="width:68px;">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
             </div>
           </div>
 
-          <button type="button" id="minify" style="width:100%;border-radius:0 0 10px 10px;margin-bottom:15px;">Minify Window</button>
+          <div class="subpanel option" style="border-radius:0 0 10px 10px;">
+            <span>Window Style:</span>
+            <select id="minify" value="full" style="width:auto;">
+              <option value="full" title="The full-size application.">Full</option>
+              <option value="half" title="Hide the Events panel.">Half</option>
+              <option value="mini" title="A small panel with two light groups.">Mini</option>
+              <option value="lightbar" title="To exit this mode, simply start dragging a light.">Lightbar</option>
+            </select>
+          </div>
 
           <button type="button" id="reset-prefs" style="filter:hue-rotate(90deg);border-radius:10px 10px 0 0;">Reset Preferences</button>
           <button type="button" id="reset-hub" style="filter:hue-rotate(90deg);border-radius:0 0 10px 10px;margin-bottom:15px;">Remove Bridge</button>

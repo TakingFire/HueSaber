@@ -8,12 +8,12 @@ function createWindow() {
       contextIsolation: false,
       backgroundThrottling: false
     },
-    width: 800,    // 400
+    width: 800,
     minWidth: 600,
     maxWidth: 1000,
-    height: 500,   // 330
-    minHeight: 500,
-    maxHeight: 500,
+    height: 490,
+    minHeight: 490,
+    maxHeight: 490,
     frame: false,
     transparent: true,
   });

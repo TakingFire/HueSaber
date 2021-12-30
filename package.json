@@ -5,18 +5,15 @@
   "description": "Philips Hue integration for Beat Saber",
   "repository": "github:TakingFire/HueSaber",
   "main": "./app/main.js",
-  "version": "1.0.0",
-
+  "version": "1.1.0",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder -mwl"
   },
-
   "build": {
     "directories": {
       "buildResources": "./app/resources"
     },
-
     "files": [
       "package.json",
       "app/**/*",
@@ -30,11 +27,9 @@
         "to": "node_modules/binary-data/src/node_modules"
       }
     ],
-
     "appId": "xyz.bacur.huesaber",
     "artifactName": "${productName}.${ext}",
     "compression": "maximum",
-
     "mac": {
       "category": "public.app-category.utilities",
       "icon": "icon.png"
@@ -47,14 +42,13 @@
       "icon": "icon.png"
     }
   },
-
   "dependencies": {
     "@nodertc/dtls": "^0.6.0",
     "binary-data": "^0.6.0",
     "jquery": "^3.6.0"
   },
   "devDependencies": {
-    "electron": "15.3.0",
+    "electron": "^16.0.5",
     "electron-builder": "^22.13.1"
   },
   "license": "GPL-3.0"

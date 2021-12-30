@@ -22,7 +22,7 @@ function compilePacket() {
     ])
   ]
 
-  let lights = Object.keys(lightState);
+  let lights = getActiveLights().slice(0, 10);
 
   lights.forEach(function(id) {
     packet.push(lightBuffer(id));
@@ -62,6 +62,16 @@ function hexy(hex) {
   return [x / (x + y + z), y / (x + y + z)];
 }
 
+function getActiveLights(group = '1234') {
+  let lights = [];
+  group.split('').forEach(function(num) {
+    $(`#group${num} li`).each(function(_, e) {
+      if (!lights.includes(e.id) && lightState[e.id]['active'] == true) { lights.push(e.id) }
+    })
+  })
+  return lights;
+}
+
 // data: { x, y, bri, x2, y2, bri2, boost }
 function changeLight(key, data, transition, def = false) {
   if (key != 'all' && !$(`#${key} .item-header input[type=checkbox]`).is(':checked')) { return; }
@@ -73,28 +83,25 @@ function changeLight(key, data, transition, def = false) {
     delete data['hex'] || data['hex2'];
   }
 
-  (key == 'all' ? '1234' : $(`#${key} select`).val()).split('').forEach(function(num) {
-    $(`#group${num} li`).each(function(_, e) {
+  getActiveLights($(`#${key} select`).val()).forEach(function(id) {
+    function changeIcon() {
+      let state = lightState[id];
+      let bri = Math.max(state['bri'], state['bri2']);
+      let color = hex + parseInt(bri).toString(16);
+      $(`[id=${id}] svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
+    }
 
-      function changeIcon() {
-        let state = lightState[e.id];
-        let bri = Math.max(state['bri'], state['bri2']);
-        let color = hex + parseInt(bri).toString(16);
-        $(`[id=${e.id}] svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
-      }
-
-      if (transition > 0) {
-        $(lightState[e.id]).animate(def ? defState[e.id] : data, {
-          duration: transition, queue: false, step: function() {
-            changeIcon();
-          }
-        })
-      }
-      else {
-        Object.assign(lightState[e.id], def ? defState[e.id] : data);
-        changeIcon();
-      }
-    })
+    if (transition > 0) {
+      $(lightState[id]).animate(def ? defState[id] : data, {
+        duration: transition, queue: false, step: function() {
+          changeIcon();
+        }
+      })
+    }
+    else {
+      Object.assign(lightState[id], def ? defState[id] : data);
+      changeIcon();
+    }
   })
 }
 
@@ -238,6 +245,10 @@ function dragarea(e) {
 var dragged;
 function drag(e) {
   dragged = e.target;
+  if ($('#minify').val() == 'lightbar') {
+    $('#minify').val('mini');
+    $('#minify').change();
+  }
 }
 
 function insertLight(e, el) {
@@ -254,22 +265,22 @@ function insertLight(e, el) {
 
 $('#options').on('click', function() {
   $('#filter, #panel-options').fadeIn(250);
-})
+});
 
 $('#basebri').on('change', function() {
   if ($(this).val() >= 254) { $('#briwarn').fadeIn(150) }
   else { $('#briwarn').fadeOut(150) }
   localStorage['basebri'] = $(this).val();
-})
+});
 
 $('#overlay').on('change', function() {
   localStorage['overlay'] = $(this).prop('checked');
 });
 
-$('#darkmode').on('change', function() {
-  localStorage['darkmode'] = $(this).prop('checked');
+$('#theme').on('change', function() {
+  localStorage['theme'] = $(this).val();
 
-  if ($(this).prop('checked')) {
+  if ($(this).val() == 'dark') {
     $(':root').css({
       '--background': '#303035',
       '--foreground1': '#3D3D43',
@@ -298,27 +309,43 @@ $('#darkmode').on('change', function() {
       '--shadow2': '',
       '--dark': '',
       '--mid1': '',
+      '--mid2': '',
       '--high': '',
     })
     $('input[type=checkbox]').css('filter', '');
   }
-})
+});
 
-var minify = false;
-$('#minify').on('click', function() {
-  if (minify) {
-    $(this).html('Minify Window');
-    ipcRenderer.send('resize', 600, 500, 800, 500, 1000, 500);
-    $('#panel-events, #hubstatus, #defcols, #group3, #group4, #reset-prefs, #reset-hub').show();
-    $('#group-grid').css({ 'grid-template': '', 'height': '' });
-    minify = false;
-  }
-  else {
-    $(this).html('Restore Window');
-    ipcRenderer.send('resize', 400, 310, 400, 310, 600, 310);
-    $('#panel-events, #hubstatus, #defcols, #group3, #group4, #reset-prefs, #reset-hub').hide();
-    $('#group-grid').css({ 'grid-template': '1fr / 1fr 1fr', 'height': '80px' });
-    minify = true;
+$('#minify').on('change', function() {
+  $('#groups, .group, #buttons, #gamestatus, #panel-events, #hubstatus, #defcols, #reset-prefs, #reset-hub').show();
+  $('#lightbar').css({ 'min-height': '', 'max-height': '', 'overflow-y': '' });
+  $('#group-grid').css({ 'grid-template': '', 'height': '' });
+  $('.panel').css('padding', '');
+
+  switch ($(this).val()) {
+    default:
+    case 'full':
+      ipcRenderer.send('resize', 600, 490, 800, 490, 1000, 490);
+      break;
+
+    case 'half':
+      ipcRenderer.send('resize', 350, 490, 400, 490, 600, 490);
+      $('#panel-events').hide();
+      break;
+
+    case 'mini':
+      ipcRenderer.send('resize', 350, 310, 400, 310, 600, 310);
+      $('#panel-events, #hubstatus, #defcols, #group3, #group4, #reset-prefs, #reset-hub').hide();
+      $('#group-grid').css({ 'grid-template': '1fr / 1fr 1fr', 'height': '80px' });
+      break;
+
+    case 'lightbar':
+      ipcRenderer.send('resize', 350, 84, 400, 84, 800, 84);
+      $('#groups, #buttons, #gamestatus, #panel-events, #hubstatus, #defcols, #reset-prefs, #reset-hub').hide();
+      $('#filter, #panel-options').hide();
+      $('#lightbar').css({ 'min-height': 'none', 'max-height': '64px', 'overflow-y': 'hidden' });
+      $('.panel').css('padding', '8px');
+      break;
   }
 })
 
@@ -331,7 +358,7 @@ $('#reset-prefs').on('click', function() {
   localStorage['clientKey'] = clientKey;
   localStorage['bridgeIp'] = bridgeIp;
   location.reload();
-})
+});
 
 var verify = false;
 $('#reset-hub').on('click', function() {
@@ -351,11 +378,11 @@ $('#reset-hub').on('click', function() {
       location.reload();
     })
   }
-})
+});
 
 $('#done').on('click', function() {
   $('#filter, #panel-options').fadeOut(250);
-})
+});
 
 async function createEntertainmentArea() {
   var bridgeIp = localStorage['bridgeIp'];
@@ -459,10 +486,6 @@ async function startUdpSocket() {
     console.error(err);
   });
 
-  udpSocket.on('data', function(msg) {
-    console.log(msg);
-  });
-
   udpSocket.once('connect', function() {
     console.log('Connected to Hue Stream');
     $('#start').html('Stop').prop('disabled', false);
@@ -475,21 +498,23 @@ async function startUdpSocket() {
 }
 
 async function closeSockets() {
+  console.log('Closing Connections...');
+  if (webSocket) {
+    await webSocket.close();
+    webSocket = null;
+    console.log('Disconnected from Beat Saber');
+  }
   if (streamLoop) {
     clearInterval(streamLoop);
     streamloop = null;
   }
   if (udpSocket) {
     await udpSocket.close();
-    udpSocket = null;
     await streamingMode(false);
-  }
-  if (webSocket) {
-    await webSocket.close();
-    webSocket = null;
+    udpSocket = null;
+    console.log('Disconnected from Hue Stream');
   }
   started = false;
-  console.log('Sockets Closed');
 }
 
 $('#start').on('click', function() {
@@ -517,8 +542,8 @@ ipcRenderer.on('close', closeSockets);
 $('#reload').on('click', async function() {
   await closeSockets();
   location.reload();
-  ipcRenderer.send('resize', 600, 500, 800, 500, 1000, 500);
-})
+  ipcRenderer.send('resize', 600, 490, 800, 490, 1000, 490);
+});
 
 function createEvent(id, name, speed = false, speedval = 0.3, color = false, colorval = '#FFFFFF', enabled = false) {
   var speedcheck = false;
@@ -644,12 +669,12 @@ async function initInterface() {
   $('#basebri').change();
 
   localStorage['overlay'] === (null || undefined) ? localStorage['overlay'] = $('#overlay').prop('checked') : $('#overlay').prop('checked', JSON.parse(localStorage['overlay']));
-  localStorage['darkmode'] === (null || undefined) ? localStorage['darkmode'] = $('#darkmode').prop('checked') : $('#darkmode').prop('checked', JSON.parse(localStorage['darkmode']));
-  $('#darkmode').change();
+  localStorage['theme'] === (null || undefined) ? localStorage['theme'] = $('#theme').val() : $('#theme').val(localStorage['theme']);
+  $('#theme').change();
 
   var bridgeIp = localStorage['bridgeIp'];
   var apiKey = localStorage['apiKey'];
-  var bridgeConfig = await $.get(`http://${bridgeIp}/api/${apiKey}/config`)
+  var bridgeConfig = await $.get(`http://${bridgeIp}/api/${apiKey}/config`);
   $('#hubstatus').html(`Connected to Hub: ${bridgeConfig['name']}`);
 
   var lights = await $.get(`http://${bridgeIp}/api/${apiKey}/lights`);
@@ -676,6 +701,17 @@ async function initInterface() {
     $('#lightbar p').hide();
     $('#lightbar').append(icon);
   })
+
+  // for (let i = 5; i < 21; i++) {
+  //   lightState[i] = { active: true, x: 0, y: 0, bri: 254, x2: 0, y2: 0, bri2: 0, boost: 0 };
+  //   let icon = `<div id="${i}" class="light-icon" draggable="true" ondragstart="drag(event)"}>
+  //     <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg">
+  //       <path d="${lightIcon('classic')}"/>
+  //     </svg>
+  //     <span>Light${i}</span>
+  //   </div>`;
+  //   $('#lightbar').append(icon);
+  // }
 }
 
 if (localStorage['apiKey'] === (null || undefined)) {
@@ -709,4 +745,4 @@ if (localStorage['apiKey'] === (null || undefined)) {
     }
   });
 }
-else { initInterface(); }
+else { initInterface() }
