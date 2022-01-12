@@ -28,6 +28,16 @@
         </div>
       </div>
 
+      <div class="panel" id="panel-bridge" style="display:flex;flex-flow:column;">
+        <p style="margin-bottom:8px;">Multiple Bridges detected! Please select one:</p>
+        <div style="display:flex;flex-flow:column;flex-grow:1">
+          <button class="subpanel">
+            <span>Test Bridge</span>
+            <span>(192.168.0.8)</span>
+          </button>
+        </div>
+      </div>
+
       <div class="panel" id="panel-options">
         <div>
           <p style="margin-bottom:5px;">Options</p>
@@ -115,8 +125,8 @@
           </div>
           <button type="button" id="options" style="margin-right:10px;flex-grow:2;">Options</button>
           <div style="margin-right:0;">
-            <button type="button" id="exit" class="leftbutton" style="z-index:0;">Exit</button>
-            <button type="button" id="reload" class="rightbutton" title="Refresh Lights" style="z-index:0;font-size:18px;font-weight:700;">⭮</button>
+            <button type="button" id="exit" class="leftbutton" style="z-index:1;">Exit</button>
+            <button type="button" id="reload" class="rightbutton" title="Refresh Lights" style="z-index:1;font-size:18px;font-weight:700;">⭮</button>
           </div>
         </div>
         <p id="gamestatus">Not Connected</p>

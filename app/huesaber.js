@@ -334,7 +334,7 @@ $('#minify').on('change', function() {
       break;
 
     case 'mini':
-      ipcRenderer.send('resize', 350, 310, 400, 310, 600, 310);
+      ipcRenderer.send('resize', 350, 300, 400, 300, 600, 300);
       $('#panel-events, #hubstatus, #defcols, #group3, #group4, #reset-prefs, #reset-hub').hide();
       $('#group-grid').css({ 'grid-template': '1fr / 1fr 1fr', 'height': '80px' });
       break;
@@ -374,7 +374,9 @@ $('#reset-hub').on('click', function() {
     $(this).on('click.verify', function() {
       $(this).off('click.verify').html('Resetting...');
       window.clearTimeout(timer);
-      localStorage.clear();
+      localStorage.removeItem('bridgeIp');
+      localStorage.removeItem('apiKey');
+      localStorage.removeItem('clientKey');
       location.reload();
     })
   }
@@ -658,7 +660,7 @@ $('.list-item select, .list-item input').on('change', function() {
   )
 });
 
-$('#filter, #panel-intro, #panel-options').hide();
+$('#filter, #panel-intro, #panel-bridge, #panel-options').hide();
 
 async function initInterface() {
   localStorage['lcol'] === (null || undefined) ? localStorage['lcol'] = $('#lcol').val() : $('#lcol').val(localStorage['lcol']);
@@ -675,7 +677,7 @@ async function initInterface() {
   var bridgeIp = localStorage['bridgeIp'];
   var apiKey = localStorage['apiKey'];
   var bridgeConfig = await $.get(`http://${bridgeIp}/api/${apiKey}/config`);
-  $('#hubstatus').html(`Connected to Hub: ${bridgeConfig['name']}`);
+  $('#hubstatus').html(`Connected to Bridge: ${bridgeConfig['name']}`);
 
   var lights = await $.get(`http://${bridgeIp}/api/${apiKey}/lights`);
   localStorage['lights'] = JSON.stringify(lights);
@@ -714,34 +716,60 @@ async function initInterface() {
   // }
 }
 
+async function authorizeBridge(bridgeIp) {
+  $('#panel-bridge').fadeOut(250);
+  $('#panel-intro').fadeIn(750);
+
+  localStorage['bridgeIp'] = bridgeIp;
+  console.log(`Bridge found at ${bridgeIp}, waiting for button...`);
+
+  var request = async function() {
+    userid = await $.post(`http://${bridgeIp}/api`, JSON.stringify({ "devicetype": "HueSaber#Electron", "generateclientkey": true }), dataType = 'json');
+
+    if ('success' in userid[0]) {
+      window.clearInterval(loop);
+      localStorage['apiKey'] = userid[0]['success']['username'];
+      localStorage['clientKey'] = userid[0]['success']['clientkey'];
+
+      console.log('Button pressed!');
+      initInterface();
+      $('#filter, #panel-intro').fadeOut(500);
+    }
+  }
+  var loop = window.setInterval(request, 4000);
+}
+
 if (localStorage['apiKey'] === (null || undefined)) {
-  $('#filter, #panel-intro').fadeIn(750);
+  $('#filter').fadeIn(750);
 
   $.get('https://discovery.meethue.com/', function(query) {
     if (query != []) {
-      bridgeIp = query[0]['internalipaddress']
-      localStorage['bridgeIp'] = bridgeIp;
-      console.log(`Bridge found at ${bridgeIp}, waiting for button...`);
 
-      var request = async function() {
-        userid = await $.post(`http://${bridgeIp}/api`, JSON.stringify({ "devicetype": "HueSaber#Electron", "generateclientkey": true }), dataType = 'json');
+      if (query.length > 1) {
+        query.forEach(async function(i) {
+          let ip = i['internalipaddress'];
+          let info = await $.get(`http://${ip}/api/config`);
 
-        if ('success' in userid[0]) {
-          window.clearInterval(loop);
-          localStorage['apiKey'] = userid[0]['success']['username'];
-          localStorage['clientKey'] = userid[0]['success']['clientkey'];
+          let button = `<button class="subpanel" onclick="authorizeBridge('${ip}')">
+            <span>${info['name']}</span>
+            <span>(${ip})</span>
+          </button>`
 
-          console.log('Button pressed!');
-          initInterface();
-          $('#filter, #panel-intro').fadeOut(500);
-        }
+          $('#panel-bridge div').prepend(button);
+        })
+        $('#panel-bridge').fadeIn(500);
       }
-      var loop = window.setInterval(request, 4000);
+
+      else {
+        authorizeBridge(query[0]['internalipaddress']);
+      }
     }
+
     else {
       console.log('No bridge found!');
       $('#intro-main').html('Unfortunately, no bridge was detected.<br>Ensure it is active and on the same network.');
       $('#intro-sub').html('Reload or restart this application to try again.');
+      $('panel-intro').fadeIn(750);
     }
   });
 }

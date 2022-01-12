@@ -122,7 +122,8 @@ select {
 }
 
 #panel-intro,
-#panel-options {
+#panel-options,
+#panel-bridge {
   display         : flex;
   position        : absolute;
   align-self      : center;
@@ -160,7 +161,7 @@ select {
   border-radius    : 50%;
   background-color : var(--high);
   text-align       : center;
-  line-height      : 16px;
+  line-height      : 17px;
   cursor           : help;
 }
 
@@ -236,6 +237,12 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 #panel-intro p {
   margin-bottom : 10px;
+}
+
+#panel-bridge {
+  z-index: 2;
+  width: 50%;
+  min-height: 30%;
 }
 
 #panel-events {

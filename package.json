@@ -5,7 +5,7 @@
   "description": "Philips Hue integration for Beat Saber",
   "repository": "github:TakingFire/HueSaber",
   "main": "./app/main.js",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder -mwl"
