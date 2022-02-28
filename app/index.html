@@ -69,6 +69,7 @@
               <option value="half" title="Hide the Events panel.">Half</option>
               <option value="mini" title="A small panel with two light groups.">Mini</option>
               <option value="lightbar" title="To exit this mode, simply start dragging a light.">Lightbar</option>
+              <option value="overlay" title="A stream overlay with song and performance stats.">Overlay</option>
             </select>
           </div>
 
@@ -77,8 +78,47 @@
 
         </div>
         <div style="display:flex;">
-          <button type="button" id="done">Done</button>
+          <button type="button" class="leftbutton" id="prev">⮜</button>
+          <button type="button" style="width:500%;border-radius:0;" id="done">Done</button>
+          <button type="button" class="rightbutton" id="next">⮞</button>
         </div>
+      </div>
+
+      <div class="panel" id="panel-overlay">
+
+        <div class="subpanel" id="ol-image">
+          <div id="ol-difficulty">N/A</div>
+        </div>
+
+        <div id="ol-content">
+          <div class="subpanel" id="ol-stats" class="space-between">
+
+            <div class="space-between" style="margin-bottom:4px;flex-wrap:wrap;min-width:0;">
+              <div style="max-width:70%;flex-shrink:2;">
+                <p id="ol-title">Main Menu</p>
+                <p id="ol-author">Beat Saber</p>
+              </div>
+              <div>
+                <p id="ol-score">000000</p>
+                <p id="ol-rank">100.0% SS</p>
+              </div>
+            </div>
+
+            <div class="space-between" style="align-items:center;">
+              <span id="ol-time" style="margin-right:8px;">00:00</span>
+              <div id="ol-bar" class="indent">
+                <div id="ol-bar-fill"></div>
+              </div>
+              <span id="ol-duration" style="margin-left:8px;">00:00</span>
+
+            </div>
+          </div>
+
+          <div class="subpanel" id="ol-lightbar">
+
+          </div>
+        </div>
+
       </div>
 
       <div class="panel" id="panel-config" style="flex-grow:1.5;">
@@ -100,16 +140,16 @@
         <div class="subpanel" id="groups" style="padding-bottom:15px;">
           <p>Light Groups:</p>
           <div id="group-grid">
-            <ol id="group1" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+            <ol id="group1" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
               <p>Drag lights<br>to add</p>
             </ol>
-            <ol id="group2" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+            <ol id="group2" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
               <p>Drag lights<br>to add</p>
             </ol>
-            <ol id="group3" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+            <ol id="group3" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
               <p>Drag lights<br>to add</p>
             </ol>
-            <ol id="group4" class="group" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
+            <ol id="group4" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
               <p>Drag lights<br>to add</p>
             </ol>
           </div>
@@ -127,10 +167,10 @@
           </div>
         </div>
         <p id="gamestatus">Not Connected</p>
+
       </div>
 
       <div class="panel" id="panel-events" style="padding-right:10px;">
-        <!-- <p>Event List</p> -->
         <ol id="eventlist">
         </ol>
       </div>

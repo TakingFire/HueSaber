@@ -92,7 +92,7 @@ function changeLight(key, data, transition, def = false) {
       let state = lightState[id];
       let bri = Math.max(state['bri'], state['bri2']);
       let color = hex + parseInt(bri).toString(16);
-      $(`[id=${id}] svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
+      $(`[id=${id}]:not(hidden) svg`).css({ 'fill': bri <= 1 ? '' : color, 'filter': bri <= 1 ? '' : `drop-shadow(2px 2px 8px ${hex})` });
     }
 
     if (transition > 0) {
@@ -147,7 +147,7 @@ function mapEvent(key, value) {
 
 function handleEvent(result) {
   var type = result['event'];
-  var bri = (type != 'beatmapEvent') ? localStorage['basebri'] : null;
+  var bri = localStorage['basebri'];
   var cache, speed, color;
 
   switch (type) {
@@ -221,11 +221,43 @@ function handleEvent(result) {
         $('#rcol').val(rgbhex(details['color']['environment1']));
         $('#lcol').change();
       }
+
+      if ($('#minify').val() == 'overlay') {
+        $('#ol-title').html(details['songName']);
+        $('#ol-author').html(details['songAuthorName']);
+        $('#ol-difficulty').html(details['difficulty']);
+        $('#ol-image').css('background-image', 'url(data:image/png;base64,' + details['songCover'] + ')');
+        $('#ol-duration').html(new Date(details['length']).toISOString().substr(14, 5));
+
+        let timer = setInterval(function() {
+          let progress = Date.now() - details['start'];
+          $('#ol-time').html(new Date(progress).toISOString().substr(14, 5));
+          $('#ol-bar-fill').css({ 'width': (progress / details['length']) * 100 + '%' });
+        }, 1000);
+
+        $('#ol-time').data('timer', timer);
+      }
+      break;
+
+    case 'scoreChanged':
+      if ($('#minify').val() == 'overlay') {
+        let details = result['status']['performance'];
+        $('#ol-score').html(details['score']).stop().css({ 'font-size': '22px' }).animate({ 'font-size': '18px' }, 250);
+        $('#ol-rank').html(`${((details['score'] / details['currentMaxScore']) * 100).toFixed(1)}% ${details['rank']}`);
+      }
       break;
 
     case 'menu':
       console.log('Returning to Menu');
       changeLight('all', {}, 2000, true);
+
+      if ($('#minify').val() == 'overlay') {
+        $('#ol-time').html('00:00');
+        $('#ol-bar-fill').animate({ 'width': '0%' }, 250);
+      }
+
+    case 'finished':
+      clearInterval($('#ol-time').data('timer'));
       break;
   }
 }
@@ -267,7 +299,7 @@ function dragarea(e) {
 var dragged;
 function drag(e) {
   dragged = e.target;
-  if ($('#minify').val() == 'lightbar') {
+  if (['lightbar', 'overlay'].includes($('#minify').val())) {
     $('#minify').val('mini');
     $('#minify').change();
   }
@@ -277,15 +309,16 @@ function insertLight(e, el) {
   if (!($(e.currentTarget).find('li').map(function() { return this.id; }).get().includes(dragged.id))) {
     e.preventDefault();
     $(el).find('p').hide();
-    let item = `<li id="${dragged.id}">${dragged.innerHTML}<button class="remove">✖</button></li>`;
-    $(el).append(item).find('.remove').on('click', function() {
-      $(this).parents('li').remove();
+    let item = $(`<li id="${dragged.id}">${dragged.innerHTML}<button class="remove">✖</button></li>`);
+    item.appendTo(el).find('.remove').on('click', function() {
+      $(item).remove();
       if ($(el).find('li').length == 0) { $(el).find('p').show(); }
     });
   }
 }
 
 $('#options').on('click', function() {
+  $('#exit, #reload').css('z-index', '0');
   $('#filter, #panel-options').fadeIn(250);
 });
 
@@ -309,7 +342,7 @@ $('#theme').on('change', function() {
       '--foreground2': '#3D3D4390',
       '--border1': '#1D1D23',
       '--border2': '#3D3D43',
-      '--indent': '#28282D',
+      '--indent': '#29292E',
       '--shadow1': '#16161B60',
       '--shadow2': '#16161B60',
       '--dark': '#B1B1B6',
@@ -339,7 +372,8 @@ $('#theme').on('change', function() {
 });
 
 $('#minify').on('change', function() {
-  $('#groups, .group, #buttons, #gamestatus, #panel-events, #hubstatus, #defcols, #reset-prefs, #reset-hub').show();
+  $('#panel-overlay').hide();
+  $('#panel-config, #panel-events, #reset-hub, #reset-prefs, #group-grid').show().children().show();
   $('#lightbar').css({ 'min-height': '', 'max-height': '', 'overflow-y': '' });
   $('#group-grid').css({ 'grid-template': '', 'height': '' });
   $('.panel').css('padding', '');
@@ -347,7 +381,7 @@ $('#minify').on('change', function() {
   switch ($(this).val()) {
     default:
     case 'full':
-      ipcRenderer.send('resize', 600, 490, 800, 490, 1000, 490);
+      ipcRenderer.send('resize', 610, 490, 800, 490, 1000, 490);
       break;
 
     case 'half':
@@ -368,6 +402,17 @@ $('#minify').on('change', function() {
       $('#lightbar').css({ 'min-height': 'none', 'max-height': '64px', 'overflow-y': 'hidden' });
       $('.panel').css('padding', '8px');
       break;
+
+    case 'overlay':
+      let lights = $('#lightbar .light-icon').clone();
+      lights.find('span').remove();
+      $('#ol-lightbar').empty().append(lights);
+
+      ipcRenderer.send('resize', 420, 146, 460, 146, 600, 146);
+      $('#panel-config, #panel-events').hide();
+      $('#filter, #panel-options').hide();
+      $('.panel').css('padding', '8px');
+      $('#panel-overlay').show();
   }
 })
 
@@ -406,6 +451,7 @@ $('#reset-hub').on('click', function() {
 
 $('#done').on('click', function() {
   $('#filter, #panel-options').fadeOut(250);
+  $('#exit, #reload').css('z-index', '1');
 });
 
 async function createEntertainmentArea() {
@@ -664,8 +710,8 @@ $('#defcols input').on('change', function() {
   localStorage['lcol'] = lcol;
   localStorage['rcol'] = rcol;
   $('#defcols').css('background-image',
-    `radial-gradient(ellipse at 25% 80%,${lcol}80,transparent 50%),
-   radial-gradient(ellipse at 75% 80%,${rcol}80,transparent 50%)`);
+    `radial-gradient(ellipse at 25% 80%,${lcol}80,transparent 60%),
+   radial-gradient(ellipse at 75% 80%,${rcol}80,transparent 60%)`);
   console.log(`Base colors: %c${lcol} %c& %c${rcol}`, `color: ${lcol}`, 'color: inherit', `color: ${rcol}`);
 });
 
@@ -696,7 +742,7 @@ $('.list-item select, .list-item input').on('change', function() {
   )
 });
 
-$('#filter, #panel-intro, #panel-bridge, #panel-options').hide();
+$('#filter, #panel-intro, #panel-bridge, #panel-options, #panel-overlay').hide();
 
 async function initInterface() {
   localStorage['lcol'] === (null || undefined) ? localStorage['lcol'] = $('#lcol').val() : $('#lcol').val(localStorage['lcol']);
@@ -730,27 +776,17 @@ async function initInterface() {
     lightState[key] = { active: active, x: xy[0], y: xy[1], bri: bri, x2: 0, y2: 0, bri2: 0, boost: 0 };
     defState[key] = { x: xy[0], y: xy[1], bri: bri };
 
-    let icon = `<div id="${key}" class="light-icon" draggable="true" ondragstart="drag(event)" ${active ? '' : 'style="color:#9AA1B1;" title="Not Reachable"'}>
-      <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg" title="${light['productname']}" ${active ? '' : 'style="fill:#9AA1B1;"'}>
-        <path d="${lightIcon(arch)}"/>
-      </svg>
-      <span>${light['name']}</span>
-    </div>`;
+    let icon =
+      `<div id="${key}" class="light-icon" draggable="true" ondragstart="drag(event)" ${active ? '' : 'style="color:#9AA1B1;" title="Not Reachable"'}>
+        <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg" title="${light['productname']}" ${active ? '' : 'style="fill:#9AA1B1;"'}>
+          <path d="${lightIcon(arch)}"/>
+        </svg>
+        <span>${light['name']}</span>
+      </div>`;
 
     $('#lightbar p').hide();
     $('#lightbar').append(icon);
   })
-
-  // for (let i = 5; i < 21; i++) {
-  //   lightState[i] = { active: true, x: 0, y: 0, bri: 254, x2: 0, y2: 0, bri2: 0, boost: 0 };
-  //   let icon = `<div id="${i}" class="light-icon" draggable="true" ondragstart="drag(event)"}>
-  //     <svg viewBox="2 2 21 21" xmlns="http://www.w3.org/2000/svg">
-  //       <path d="${lightIcon('classic')}"/>
-  //     </svg>
-  //     <span>Light${i}</span>
-  //   </div>`;
-  //   $('#lightbar').append(icon);
-  // }
 }
 
 async function authorizeBridge(bridgeIp) {
@@ -787,10 +823,11 @@ if (localStorage['apiKey'] === (null || undefined)) {
           let ip = i['internalipaddress'];
           let info = await $.get(`http://${ip}/api/config`);
 
-          let button = `<button class="subpanel" onclick="authorizeBridge('${ip}')">
-            <span>${info['name']}</span>
-            <span>(${ip})</span>
-          </button>`
+          let button =
+            `<button class="subpanel" onclick="authorizeBridge('${ip}')">
+              <span>${info['name']}</span>
+              <span>(${ip})</span>
+            </button>`;
 
           $('#panel-bridge div').prepend(button);
         })

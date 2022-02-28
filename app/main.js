@@ -9,7 +9,7 @@ function createWindow() {
       backgroundThrottling: false
     },
     width: 800,
-    minWidth: 600,
+    minWidth: 610,
     maxWidth: 1000,
     height: 490,
     minHeight: 490,
