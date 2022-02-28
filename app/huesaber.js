@@ -62,6 +62,10 @@ function hexy(hex) {
   return [x / (x + y + z), y / (x + y + z)];
 }
 
+function rgbhex(rgb) {
+  return '#' + rgb.map(x => x.toString(16)).map(x => x.length == 1 ? '0' + x : x).join('');
+}
+
 function getActiveLights(group = '1234') {
   let lights = [];
   group.split('').forEach(function(num) {
@@ -211,6 +215,12 @@ function handleEvent(result) {
       console.log(details['songAuthorName'] + ' - ' + details['songName']);
 
       if (!JSON.parse(localStorage['overlay'])) { changeLight('all', { bri: 0 }, 2000) }
+
+      if (JSON.parse(localStorage['autocols'])) {
+        $('#lcol').val(rgbhex(details['color']['environment0']));
+        $('#rcol').val(rgbhex(details['color']['environment1']));
+        $('#lcol').change();
+      }
       break;
 
     case 'menu':
@@ -642,6 +652,12 @@ createEvent('cl3', 'Custom Light 2', {});
 createEvent('cl4', 'Custom Light 3', {});
 createEvent('cl5', 'Custom Light 4', {});
 
+$('#autocols').on('click', function() {
+  const current = JSON.parse(localStorage['autocols']);
+  localStorage['autocols'] = !current;
+  $(this).toggleClass('button-toggle');
+})
+
 $('#defcols input').on('change', function() {
   let lcol = $('#lcol').val();
   let rcol = $('#rcol').val();
@@ -687,6 +703,7 @@ async function initInterface() {
   localStorage['rcol'] === (null || undefined) ? localStorage['rcol'] = $('#rcol').val() : $('#rcol').val(localStorage['rcol']);
   $('#lcol').change();
 
+  localStorage['autocols'] === (null || undefined || 'false') ? localStorage['autocols'] = false : $('#autocols').addClass('button-toggle');
   localStorage['basebri'] === (null || undefined) ? localStorage['basebri'] = $('#basebri').val() : $('#basebri').val(localStorage['basebri']);
   $('#basebri').change();
 
