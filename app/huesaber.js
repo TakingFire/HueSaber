@@ -155,6 +155,10 @@ function handleEvent(result) {
         case 2: mapEvent('lla', value); break;
         case 3: mapEvent('rla', value); break;
         case 4: mapEvent('bgc', value); break;
+        case 6: mapEvent('cl2', value); break;
+        case 7: mapEvent('cl3', value); break;
+        case 10: mapEvent('cl4', value); break;
+        case 11: mapEvent('cl5', value); break;
       }
       break;
 
@@ -555,7 +559,7 @@ $('#reload').on('click', async function() {
   ipcRenderer.send('resize', 600, 490, 800, 490, 1000, 490);
 });
 
-function createEvent(id, name, speed = false, speedval = 0.3, color = false, colorval = '#FFFFFF', enabled = false) {
+function createEvent(id, title, { speed = false, speedval = 0.4, color = false, colorval = '#C81414', enabled = false }) {
   var speedcheck = false;
   var colorcheck = false;
   var groups = '1234';
@@ -566,69 +570,77 @@ function createEvent(id, name, speed = false, speedval = 0.3, color = false, col
   else { localStorage[id] = JSON.stringify([groups, speedcheck, speedval, colorcheck, colorval, enabled]) }
 
   if (speed) {
-    speed = `<div class="item-option speed" style="margin-bottom: 5px;">
-      <div>
-        <input type="checkbox" ${speedcheck ? 'checked' : ''}>
-        <span>Custom Speed</span>
-      </div>
-      <input type="number" min="0.1" max="1" step="0.1" value="${speedval}">
-    </div>`;
+    speed =
+      `<div class="item-option space-between speed" style="margin-bottom: 5px;">
+        <div>
+          <input type="checkbox" ${speedcheck ? 'checked' : ''}>
+          <span>Custom Speed</span>
+        </div>
+        <input type="number" min="0.1" max="1" step="0.1" value="${speedval}">
+      </div>`;
   } else { speed = '' }
 
   if (color) {
-    color = `<div class="item-option color">
-      <div>
-        <input type="checkbox" ${colorcheck ? 'checked' : ''}>
-        <span>Custom Color</span>
-      </div>
-      <input type="color" value="${colorval}">
-    </div>`;
+    color =
+      `<div class="item-option space-between color">
+        <div>
+          <input type="checkbox" ${colorcheck ? 'checked' : ''}>
+          <span>Custom Color</span>
+        </div>
+        <input type="color" value="${colorval}">
+      </div>`;
   } else { color = '' }
 
-  let listItem = `<li id="${id}" class="list-item" ${enabled ? '' : 'style="filter: opacity(0.75)"'}>
-    <div class="subpanel item-header" style="${enabled ? 'border-radius: 10px 10px 0px 0px;' : 'border-radius: 10px;'}">
-      <div>
-        <input type="checkbox" ${enabled ? 'checked' : ''}>
-        <span style="margin-right: 20px;">${name}</span>
+  let listItem =
+    `<li id="${id}" class="list-item" ${enabled ? '' : 'style="filter: opacity(0.75)"'}>
+      <div class="subpanel item-header space-between" style="${enabled ? 'border-radius: 10px 10px 0px 0px;' : 'border-radius: 10px;'}">
+        <div>
+          <input type="checkbox" ${enabled ? 'checked' : ''}>
+          <span style="margin-right: 20px;">${title}</span>
+        </div>
+        <div>
+          <span style="font-weight: 400;">Group:</span>
+          <select value="${groups}" selected>
+            <option value="1234">1-4</option>
+            <option value="12">1-2</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <span style="font-weight: 400;">Group:</span>
-        <select value="${groups}" selected>
-          <option value="1234">1-4</option>
-          <option value="12">1-2</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="item-body" ${enabled ? '' : 'style="display:none;"'}>
-      ${speed}
-      ${color}
-    </div>
-  </li>`;
+      <div class="item-body indent" ${enabled ? '' : 'style="display:none;"'}>
+        ${speed}
+        ${color}
+      </div>
+    </li>`;
 
   $('#eventlist').append(listItem);
   $(`#eventlist #${id} option:contains('${groups}')`).prop({ selected: true });
 }
 
 $('#eventlist').append('<p>Player Events</p>');
-createEvent('slc', 'Note Slice', true, 0.4, false, '#FFFFFF', false);
-createEvent('mss', 'Note Miss', true, 0.4, true, '#C81414', true);
-createEvent('bmb', 'Bomb Hit', true, 0.6, true, '#C81414', true);
-createEvent('wal', 'In Wall', false, null, true, '#C81414', true);
-createEvent('fal', 'Fail', false, null, true, '#C81414', true);
+createEvent('slc', 'Note Slice', { speed: true, speedval: 0.3, colorval: '#FFFFFF' });
+createEvent('mss', 'Note Miss', { speed: true, color: true, enabled: true });
+createEvent('bmb', 'Bomb Hit', { speed: true, speedval: 0.6, color: true, enabled: true });
+createEvent('wal', 'In Wall', { color: true, enabled: true });
+createEvent('fal', 'Fail', { color: true, enabled: true });
 $('#eventlist').append('<p>Map Events</p>');
-createEvent('bgc', 'Center Lights');
-createEvent('rng', 'Ring Lights');
-createEvent('bla', 'Back Lasers');
-createEvent('lla', 'Left Lasers');
-createEvent('rla', 'Right Lasers');
+createEvent('bgc', 'Center Lights', {});
+createEvent('rng', 'Ring Lights', {});
+createEvent('bla', 'Back Lasers', {});
+createEvent('lla', 'Left Lasers', {});
+createEvent('rla', 'Right Lasers', {});
 // $('#eventlist').append('<p>Special Events</p>');
-// createEvent('Cut Score', 'scr', true, 0.3, false, null, false);
-// createEvent('Level Score', 'grd', false, null, false, null, false);
+// createEvent('scr', 'Cut Score', { speed: true });
+// createEvent('grd', 'Level Score', {});
+$('#eventlist').append('<p>Other Events <span class="help" title="Used by some scenes for extra lights,&#10;their locations may vary greatly.">?</span></p>');
+createEvent('cl2', 'Custom Light 1', {});
+createEvent('cl3', 'Custom Light 2', {});
+createEvent('cl4', 'Custom Light 3', {});
+createEvent('cl5', 'Custom Light 4', {});
 
 $('#defcols input').on('change', function() {
   let lcol = $('#lcol').val();
