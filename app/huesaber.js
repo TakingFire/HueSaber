@@ -116,15 +116,23 @@ function mapEvent(key, value) {
     case 0:
       changeLight(key, { bri: 0 }, 0, over);
       break;
-    case 1 || 2:
+    case 1:
       changeLight(key, { hex: rcol, bri: bri }, 0);
+      break;
+    case 2:
+      changeLight(key, { hex: rcol, bri: bri, boost: 48 }, 0);
+      changeLight(key, { hex: rcol, bri: bri, boost: 0 }, 500);
       break;
     case 3:
       changeLight(key, { hex: rcol, bri: bri }, 0);
       changeLight(key, { hex: rcol, bri: 0 }, 750, over);
       break;
-    case 5 || 6:
+    case 5:
       changeLight(key, { hex: lcol, bri: bri }, 0);
+      break;
+    case 6:
+      changeLight(key, { hex: lcol, bri: bri, boost: 48 }, 0);
+      changeLight(key, { hex: lcol, bri: bri, boost: 0 }, 500);
       break;
     case 7:
       changeLight(key, { hex: lcol, bri: bri }, 0);
