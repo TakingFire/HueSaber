@@ -4,8 +4,8 @@
 ![HueSaber in action](https://i.ibb.co/BKm1rgc/huesaber-2.gif)
 
 ### Before Using:
-1. Install [http-status](https://github.com/opl-/beatsaber-http-status) using your method of choice. ([ModAssistant](https://github.com/Assistant/ModAssistant) recommended)
-   - Ensure the mod is up to date after any Beat Saber updates!
+1. Install [HttpSiraStatus](https://github.com/opl-/beatsaber-http-status), and [websocket-sharp](https://github.com/sta/websocket-sharp) (available on [ModAssistant](https://github.com/Assistant/ModAssistant)).
+   - Ensure the mods are up to date after any Beat Saber updates!
 2. Download the latest executable from the [releases](https://github.com/TakingFire/HueSaber/releases/latest) page.
 2. Enjoy! No installation required.
 

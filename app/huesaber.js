@@ -34,7 +34,7 @@ function compilePacket() {
 function lightBuffer(id) {
   const arr = new ArrayBuffer(9);
   const view = new DataView(arr);
-  var state = lightState[id]
+  var state = lightState[id];
 
   view.setUint8(0, 0);
   view.setUint16(1, parseInt(id));
@@ -146,12 +146,14 @@ function mapEvent(key, value) {
 }
 
 function handleEvent(result) {
+  // console.log(result);
   var type = result['event'];
   var bri = localStorage['basebri'];
   var cache, speed, color;
 
   switch (type) {
     case 'beatmapEvent':
+      if (!result['beatmapEvent']) { return };
       let value = result['beatmapEvent']['value'];
       switch (result['beatmapEvent']['type']) {
         case 0: mapEvent('bla', value); break;
@@ -474,7 +476,7 @@ async function createEntertainmentArea() {
           localStorage['lightGroup'] = key;
         }
       });
-      return false;
+      return;
     }
   }
 
@@ -522,7 +524,8 @@ function startWebSocket() {
   }
 
   webSocket.onmessage = function(msg) {
-    handleEvent(JSON.parse(msg.data));
+    try { handleEvent(JSON.parse(msg.data)) }
+    catch (err) { return }
   }
 }
 
