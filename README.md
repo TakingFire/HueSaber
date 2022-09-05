@@ -3,6 +3,8 @@
 
 ![HueSaber in action](https://i.ibb.co/BKm1rgc/huesaber-2.gif)
 
+![Song overlay mode](https://i.ibb.co/92LRxqj/huesaber-overlay.gif)
+
 ### Before Using:
 1. Install [HttpSiraStatus](https://github.com/opl-/beatsaber-http-status), and [websocket-sharp](https://github.com/sta/websocket-sharp) (available on [ModAssistant](https://github.com/Assistant/ModAssistant)).
    - Ensure the mods are up to date after any Beat Saber updates!

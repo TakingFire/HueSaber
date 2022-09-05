@@ -244,8 +244,11 @@ function handleEvent(result) {
     case 'scoreChanged':
       if ($('#minify').val() == 'overlay') {
         let details = result['status']['performance'];
-        $('#ol-score').html(details['score']).stop().css({ 'font-size': '22px' }).animate({ 'font-size': '18px' }, 250);
-        $('#ol-rank').html(`${((details['score'] / details['currentMaxScore']) * 100).toFixed(1)}% ${details['rank']}`);
+
+        if (details['score'] && details['currentMaxScore']) {
+          $('#ol-score').html(details['score']).stop().css({ 'font-size': '22px' }).animate({ 'font-size': '18px' }, 250);
+          $('#ol-rank').html(`${((details['score'] / details['currentMaxScore']) * 100).toFixed(1)}% ${details['rank']}`);
+        }
       }
       break;
 
@@ -752,7 +755,7 @@ async function initInterface() {
   localStorage['rcol'] === (null || undefined) ? localStorage['rcol'] = $('#rcol').val() : $('#rcol').val(localStorage['rcol']);
   $('#lcol').change();
 
-  localStorage['autocols'] === (null || undefined || 'false') ? localStorage['autocols'] = false : $('#autocols').addClass('button-toggle');
+  localStorage['autocols'] === (null || undefined) ? localStorage['autocols'] = false : $('#autocols').addClass('button-toggle');
   localStorage['basebri'] === (null || undefined) ? localStorage['basebri'] = $('#basebri').val() : $('#basebri').val(localStorage['basebri']);
   $('#basebri').change();
 
