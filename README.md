@@ -1,9 +1,9 @@
 ## Welcome to HueSaber
 **An easy-to-use but highly versatile way to bring the stage to your room.  [Download Here!](https://github.com/TakingFire/HueSaber/releases/latest)**
 
-![HueSaber in action](https://i.ibb.co/BKm1rgc/huesaber-2.gif)
+![HueSaber in action](https://i.ibb.co/4fDhgg9/huesaber-2.gif)
 
-![Song overlay mode](https://i.ibb.co/92LRxqj/huesaber-overlay.gif)
+![Song overlay mode](https://i.ibb.co/tcTYRr5/huesaber-overlay.gif)
 
 ### Before Using:
 1. Install [HttpSiraStatus](https://github.com/opl-/beatsaber-http-status), and [websocket-sharp](https://github.com/sta/websocket-sharp) (available on [ModAssistant](https://github.com/Assistant/ModAssistant)).
