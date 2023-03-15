@@ -1,4 +1,6 @@
-node_modules
+.*
 dist
+node_modules
 yarn-error.log
-yarn.lock
+package_backup.json
+changelog.md
