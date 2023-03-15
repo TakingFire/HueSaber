@@ -1,5 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
+
+// Enable native File System Access API
+app.commandLine.appendSwitch("enable-experimental-web-platform-features");
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -8,12 +11,12 @@ function createWindow() {
       contextIsolation: false,
       backgroundThrottling: false
     },
-    width: 800,
-    minWidth: 610,
+    width: 760,
+    minWidth: 640,
     maxWidth: 1000,
-    height: 490,
-    minHeight: 490,
-    maxHeight: 490,
+    height: 482,
+    minHeight: 482,
+    maxHeight: 482,
     frame: false,
     transparent: true,
   });
@@ -21,14 +24,27 @@ function createWindow() {
   win.loadFile(path.resolve(__dirname, 'index.html'));
 
   win.on('close', function(e) {
+    e.preventDefault();
     win.webContents.send('close');
-  })
+    ipcMain.on('close', function(event) {
+      win.destroy();
+    });
+  });
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 
   ipcMain.on('resize', function(event, minw, minh, w, h, maxw, maxh) {
     win.setMinimumSize(minw, minh);
     win.setMaximumSize(maxw, maxh);
     win.setSize(w, h);
-  })
+  });
+
+  ipcMain.on('ontop', function(event, bool) {
+    win.setAlwaysOnTop(bool);
+  });
 }
 
 app.whenReady().then(() => {
@@ -36,9 +52,9 @@ app.whenReady().then(() => {
 
   app.on('activate', function() {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  })
-})
+  });
+});
 
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') app.quit();
-})
+});

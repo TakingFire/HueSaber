@@ -10,59 +10,78 @@
     <script defer type="text/javascript" src="huesaber.js"></script>
   </head>
   <body>
-    <div style="position:absolute;top:0;width:100vw;height:36px;-webkit-app-region:drag;"></div>
+    <div style="position:absolute;top:0;width:100vw;height:32px;-webkit-app-region:drag;"></div>
     <div id="filter"></div>
     <div id="content">
+      <div id="loading">
+        <div class="panel" style="flex-grow:0;width:330px;">
+          <p style="font-size:18px;margin-bottom:6px;">Loading...</p>
+          <p style="font-size:14px;font-weight:400;color:var(--high);">Stuck? Open the console with Ctrl+Shift+I and <a href="https://github.com/TakingFire/HueSaber/issues/new?assignees=&labels=bug&template=bug_report.md" target="_blank">report an issue</a>.</p>
+        </div>
+      </div>
 
       <div class="panel" id="panel-intro">
-        <div style="margin-right:10px">
-        <svg viewBox="3 3 18 18" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 12 15 C 10.34375 15 9 13.65625 9 12 C 9 10.34375 10.34375 9 12 9 C 13.65625 9 15 10.34375 15 12 C 15 13.65625 13.65625 15 12 15 M 12 4.5 C 12.414062 4.5 12.75 4.835938 12.75 5.25 C 12.75 5.664062 12.414062 6 12 6 C 11.585938 6 11.25 5.664062 11.25 5.25 C 11.25 4.835938 11.585938 4.5 12 4.5 M 18 3 L 6 3 C 4.351562 3 3 4.351562 3 6 L 3 18 C 3 19.648438 4.351562 21 6 21 L 18 21 C 19.648438 21 21 19.648438 21 18 L 21 6 C 21 4.351562 19.648438 3 18 3 "/>
-        </svg>
-        <p style="font-weight:400;">Connecting...</p>
+        <div id="intro-icon">
+          <svg viewBox="2 2 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 12 15 C 10.34375 15 9 13.65625 9 12 C 9 10.34375 10.34375 9 12 9 C 13.65625 9 15 10.34375 15 12 C 15 13.65625 13.65625 15 12 15 M 12 4.5 C 12.414062 4.5 12.75 4.835938 12.75 5.25 C 12.75 5.664062 12.414062 6 12 6 C 11.585938 6 11.25 5.664062 11.25 5.25 C 11.25 4.835938 11.585938 4.5 12 4.5 M 18 3 L 6 3 C 4.351562 3 3 4.351562 3 6 L 3 18 C 3 19.648438 4.351562 21 6 21 L 18 21 C 19.648438 21 21 19.648438 21 18 L 21 6 C 21 4.351562 19.648438 3 18 3 "/>
+          </svg>
+          <p id="intro-status" style="color:var(--high);font-weight:400;margin-top:6px;">Connecting...</p>
         </div>
         <div style="max-width:338px;">
           <p style="font-size:20px;font-weight:700;">Welcome to HueSaber!</p>
-          <p id="intro-main">To get started, press the button on your bridge.<br>Your lights will be detected automatically.</p>
-          <p id="intro-sub" style="color:var(--high);font-weight:400;">If you ever wish to revoke access, you can do so in the options menu.</p>
+          <p id="intro-main">To get started, press the button on your Bridge.<br>Your lights will be detected automatically.</p>
+          <p id="intro-sub" style="color:var(--high);font-weight:400;">If you ever wish to revoke access, you can do so at <a href="https://account.meethue.com/" target="_blank">account.meethue.com</a>.</p>
         </div>
       </div>
 
       <div class="panel" id="panel-bridge" style="display:flex;flex-flow:column;">
         <p style="margin-bottom:8px;">Multiple Bridges detected! Please select one:</p>
-        <div style="display:flex;flex-flow:column;flex-grow:1">
-        </div>
+        <div style="display:flex;flex-flow:column;flex-grow:1"></div>
       </div>
 
       <div class="panel" id="panel-options">
-        <div>
+        <div id="options-p1">
           <p style="margin-bottom:5px;">Options</p>
 
-          <p id="briwarn">Note: Full brightness prevents the Slice effect!</p>
-          <div class="subpanel option" style="border-radius:10px 10px 0 0;margin-bottom:0;">
+          <p id="briwarn">⚠ Full brightness may prevent some effects!</p>
+          <div class="subpanel option top">
             <span>Default Brightness:</span>
             <input id="basebri" type="range" min="1" max="254" value="194">
           </div>
 
-          <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
-            <span>Overlay Colors:<span style="color:var(--high);"> (wip)</span></span>
+          <div class="subpanel option midy">
+            <span>Overlay Colors:</span>
             <div>
               <input id="overlay" type="checkbox">
               <span class="help" title="Instead of fading to black, lights will use their original state.&#10;Recommended for day use or to reduce flashing.">?</span>
             </div>
           </div>
 
-          <div class="subpanel option" style="border-radius:0;margin-bottom:0;">
+          <div class="subpanel option bottom" id="option-opacity">
+            <span>Overlay Opacity:</span>
+            <input id="overlay-opacity" type="range" min="1" max="100" value="50">
+          </div>
+
+          <div class="subpanel option top" id="option-pin">
+            <span>Pin Window:</span>
+            <div>
+              <input id="ontop" type="checkbox">
+              <span class="help" title="Keep the window on top, even when unfocused.">?</span>
+            </div>
+          </div>
+
+          <div class="subpanel option midy">
             <span>Window Theme:</span>
             <div>
-              <select id="theme" value="full" style="width:68px;">
+              <select id="theme" value="full" style="width:73px;">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
+                <option value="custom">Custom</option>
               </select>
             </div>
           </div>
 
-          <div class="subpanel option" style="border-radius:0 0 10px 10px;">
+          <div class="subpanel option bottom">
             <span>Window Style:</span>
             <select id="minify" value="full" style="width:auto;">
               <option value="full" title="The full-size application.">Full</option>
@@ -73,14 +92,91 @@
             </select>
           </div>
 
-          <button type="button" id="reset-prefs" style="filter:hue-rotate(90deg);border-radius:10px 10px 0 0;">Reset Preferences</button>
-          <button type="button" id="reset-hub" style="filter:hue-rotate(90deg);border-radius:0 0 10px 10px;margin-bottom:15px;">Remove Bridge</button>
-
         </div>
+
+        <div id="options-p2" style="display:none;">
+          <p style="margin-bottom:5px;">Theme</p>
+
+          <div style="display:flex;flex-flow:row;margin-bottom:16px;">
+            <button type="button" class="left" id="theme-import" style="height:28px;">Import</button>
+            <button type="button" class="midx" id="theme-export" style="height:28px;">Export</button>
+            <button type="button" class="right" id="theme-reset" style="height:28px;width:128px;font-size:18px;font-weight:700;" title="Reset Theme">⭮</button>
+          </div>
+
+          <div id="theme-window" class="subpanel option top" style="padding-bottom:1px;">
+            <div>
+              <input id="theme-background" type="color">
+              <input id="theme-foreground1" type="color">
+              <input id="theme-border1" type="color">
+              <input id="theme-shadow1" type="color">
+            </div>
+            <div>
+              <span>Background & Indent:</span>
+              <span>Foreground 1&2:</span>
+              <span>Border 1&2:</span>
+              <span>Shadow 1&2:</span>
+            </div>
+            <div>
+              <input id="theme-indent" type="color">
+              <input id="theme-foreground2" type="color">
+              <input id="theme-border2" type="color">
+              <input id="theme-shadow2" type="color">
+            </div>
+          </div>
+
+          <div id="theme-text" class="subpanel option bottom" style="padding-bottom:1px;">
+            <div>
+              <input id="theme-dark" type="color">
+              <input id="theme-mid1" type="color">
+            </div>
+            <div>
+              <span>Dark & Light Text:</span>
+              <span>Medium Text 1&2:</span>
+            </div>
+            <div>
+              <input id="theme-high" type="color">
+              <input id="theme-mid2" type="color">
+            </div>
+          </div>
+        </div>
+
+        <div id="options-p3" style="display:none;">
+          <p style="margin-bottom:5px;">Extras</p>
+
+          <!-- <div class="subpanel option top">
+            <span>Custom Address:</span>
+            <div>
+              <input type="text" name="" placeholder="0.0.0.0" style="width:80px;">
+              <span class="help" title="Force the use of a custom Bridge address. Don't modify this unless necessary.&#10;Effective on application reload/restart.">?</span>
+            </div>
+          </div> -->
+
+          <div class="subpanel option top">
+            <span>Custom Framerate:</span>
+            <div>
+              <input id="interval" type="number" min="15" max="45" step="5" value="35">
+              <span class="help" title="Force the use of a custom update rate (in Hz) for the lights.&#10;Changes require the connection be stopped and restarted.&#10;Note: Hue lights cannot update faster than 30Hz.">?</span>
+            </div>
+          </div>
+
+          <div class="subpanel option bottom">
+            <span>More Light Groups:</span>
+            <div>
+              <input id="moregroups" type="checkbox">
+              <span class="help" title="Add extra Light Groups, allowing for additional effects.&#10;Effective on application reload/restart.">?</span>
+            </div>
+          </div>
+
+          <button type="button" class="top" id="reset-prefs" style="filter:hue-rotate(90deg);">Reset Preferences</button>
+          <button type="button" class="bottom" id="reset-hub" style="filter:hue-rotate(90deg);margin-bottom:15px;">Remove Bridge</button>
+
+          <div id="p3-spacer" style="height:65px;"></div>
+        </div>
+
         <div style="display:flex;">
-          <button type="button" class="leftbutton" id="prev">⮜</button>
-          <button type="button" style="width:500%;border-radius:0;" id="done">Done</button>
-          <button type="button" class="rightbutton" id="next">⮞</button>
+          <button type="button" class="left" id="prev">⮜</button>
+          <button type="button" class="midx" id="done" style="width:500%;">Done</button>
+          <button type="button" class="right" id="next">⮞</button>
         </div>
       </div>
 
@@ -110,7 +206,6 @@
                 <div id="ol-bar-fill"></div>
               </div>
               <span id="ol-duration" style="margin-left:8px;">00:00</span>
-
             </div>
           </div>
 
@@ -121,7 +216,7 @@
 
       </div>
 
-      <div class="panel" id="panel-config" style="flex-grow:1.5;">
+      <div class="panel" id="panel-config">
         <p id="hubstatus">Waiting for permission...</p>
 
         <div class="subpanel" id="lightbar">
@@ -130,48 +225,38 @@
 
         <div class="subpanel" id="defcols">
           <button type="button" class="remove" id="autocols" title="Automatic Beatmap Colors">▶</button>
-          <p>Base Colors:</p>
+          <p>Light Colors:</p>
           <div>
-            <input type="color" id="lcol" value="#C81414"> <!--#C220DD 194 32 221-->
-            <input type="color" id="rcol" value="#3030FF"> <!--#00A0FF 0 160 255-->
+            <input type="color" id="lcol" value="#C81414" title="Primary Color (Left)">
+            <input type="color" id="rcol" value="#3030FF" title="Primary Color (Right)">
           </div>
         </div>
 
-        <div class="subpanel" id="groups" style="padding-bottom:15px;">
+        <div class="subpanel" id="groups" style="padding-bottom:10px;">
           <p>Light Groups:</p>
           <div id="group-grid">
-            <ol id="group1" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
-              <p>Drag lights<br>to add</p>
-            </ol>
-            <ol id="group2" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
-              <p>Drag lights<br>to add</p>
-            </ol>
-            <ol id="group3" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
-              <p>Drag lights<br>to add</p>
-            </ol>
-            <ol id="group4" class="group indent" ondragover="dragarea(event)" ondrop="insertLight(event, this)">
-              <p>Drag lights<br>to add</p>
-            </ol>
+            <!-- <div id="group"></div> -->
           </div>
         </div>
 
         <div id="buttons">
           <div style="flex-grow:3;">
-            <button type="button" id="start" class="leftbutton" title='Connect to Beat Saber'>Start</button>
-            <button type="button" id="autostart" class="rightbutton" title='Auto Start'>▶</button>
+            <button type="button" id="start" class="left" style="flex-grow:3;">Start</button>
+            <button type="button" id="autostart" class="right" title='Start on Launch'>▶</button>
           </div>
           <button type="button" id="options" style="margin-right:10px;flex-grow:2;">Options</button>
           <div style="margin-right:0;">
-            <button type="button" id="exit" class="leftbutton" style="z-index:1;">Exit</button>
-            <button type="button" id="reload" class="rightbutton" title="Refresh Lights" style="z-index:1;font-size:18px;font-weight:700;">⭮</button>
+            <button type="button" id="exit" class="left" style="z-index:1;flex-grow:3;">Exit</button>
+            <button type="button" id="reload" class="right" title="Refresh Lights" style="z-index:1;font-size:18px;font-weight:700;">⭮</button>
           </div>
         </div>
         <p id="gamestatus">Not Connected</p>
 
       </div>
 
-      <div class="panel" id="panel-events" style="padding-right:10px;">
+      <div class="panel" id="panel-events">
         <ol id="eventlist">
+          <!-- <li id="list-item"></li> -->
         </ol>
       </div>
     </div>
