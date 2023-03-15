@@ -1,7 +1,7 @@
 ## Welcome to HueSaber
 **An easy-to-use but highly versatile way to bring the stage to your room.  [Download Here!](https://github.com/TakingFire/HueSaber/releases/latest)**
 
-![HueSaber in action](/images/huesaber-full2.gif)
+<img src="/images/huesaber-full2.gif" height="250">
 
 ![Song overlay mode](/images/huesaber-overlay.gif)
 
