@@ -87,7 +87,14 @@ const Hue = {
     if (lights[0] && 'error' in lights[0]) { return {} }
 
     for (const [id, light] of Object.entries(lights)) {
-      new Light(id, light);
+      try {
+        new Light(id, light);
+      }
+      catch (err) {
+        console.warn(err);
+        console.log('Failed to create light:');
+        console.log(light);
+      }
     }
     return App.Lights;
   },
@@ -218,7 +225,7 @@ const HueStream = {
       HueStream.streamLoop = setInterval(function() {
         let packet = HueStream.compilePacket();
         HueStream.socket.write(packet);
-      }, Math.floor(1000 / parseInt(localStorage['interval'] || 35)));
+      }, Math.floor(1000 / localStorage['interval']));
     });
   },
 
@@ -317,7 +324,7 @@ const GameStream = {
         case 3: // fade blue
           light.change({ hex: rcol, bri: bri }, 0);
           light.change({ hex: rcol, bri: 0 },
-            Math.max(Math.min(time, 600), 200));
+            Math.max(Math.min(time, 600), 150));
           break;
         case 5: // on red
           light.change({ hex: lcol, bri: bri }, 0);
@@ -330,7 +337,7 @@ const GameStream = {
         case 7: // fade red
           light.change({ hex: lcol, bri: bri }, 0);
           light.change({ hex: lcol, bri: 0 },
-            Math.max(Math.min(time, 600), 200));
+            Math.max(Math.min(time, 600), 150));
           break;
       }
     });
@@ -416,6 +423,7 @@ const GameStream = {
           localStorage['lcol2'] = Color.rgbToHex(details['color']['environment0Boost'] || lcol);
           localStorage['rcol2'] = Color.rgbToHex(details['color']['environment1Boost'] || rcol);
           $('#lcol').change();
+          App.Events['mss'].default.colorValue = Color.rgbToHex(details['color']['obstacle']);
         }
 
         if (localStorage['mode'] == 'overlay') {
@@ -574,7 +582,7 @@ class Event {
   getSpeedElement() {
     const config = this.config;
     const el = $(
-      `<div class="item-option space-between" style="margin-bottom: 5px;">
+      `<div class="item-option space-between">
         <div>
           <input type="checkbox" ${config.speedCheck ? 'checked' : ''}>
           <span>Custom Speed</span>
@@ -685,21 +693,26 @@ class Light {
     this.info = info;
     this.elements = [];
 
+    const state = this.info.state;
+
+    state.xy = state.xy || [0, 0];
+    state.bri = state.on ? state.bri : 0;
+
     this.default = {
-      xy: info.state.xy,
-      bri: info.state.bri
+      xy: state.xy,
+      bri: state.bri
     }
 
     this.state = {
-      x: info.state.xy[0],
-      y: info.state.xy[1],
-      bri: info.state.bri,
+      x: state.xy[0],
+      y: state.xy[1],
+      bri: state.bri,
       hex: null, boost: 0
     }
 
     this.overlay = {
-      x: info.state.xy[0],
-      y: info.state.xy[1],
+      x: state.xy[0],
+      y: state.xy[1],
       bri: 0, hex: null
     }
 
@@ -714,7 +727,7 @@ class Light {
     const basebri = parseInt(localStorage['basebri']);
 
     if (this.overlay.bri > 0) {
-      if ((this.state.bri) < 1) {
+      if (this.state.bri < 1) {
         x = this.overlay.x;
         y = this.overlay.y;
         bri = this.overlay.bri;
@@ -723,7 +736,7 @@ class Light {
         const fac = this.overlay.bri / basebri;
         x = Color.blend(x, this.overlay.x, fac);
         y = Color.blend(y, this.overlay.y, fac);
-        bri = Math.max(bri, Math.min(this.overlay.bri, basebri));
+        bri = Math.max(bri, this.overlay.bri);
       }
     }
 
@@ -919,7 +932,7 @@ const App = {
   dragData: null,
 
   init: async function() {
-    $('#loading, #filter, #panel-intro, #intro-icon, #panel-bridge, #panel-options, #panel-overlay').hide();
+    $('#filter, #panel-intro, #intro-icon, #panel-bridge, #panel-options, #panel-overlay').hide();
     this.createLightGroups();
     this.createEvents();
     this.setMode(localStorage['mode'] || 'full');
@@ -937,6 +950,7 @@ const App = {
 
     this.importLights();
 
+    $('#loading').fadeOut(250);
     if (JSON.parse(localStorage['autostart'])) { $('#start').click() }
   },
 
@@ -947,6 +961,7 @@ const App = {
     ) { return true }
 
     if (['mini', 'lightbar', 'overlay'].includes(localStorage['mode'])) { App.setMode('half') }
+    $('#loading').fadeOut(150);
 
     const bridges = await Hue.getBridges();
     if (bridges.length == 0) {

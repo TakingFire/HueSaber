@@ -568,6 +568,10 @@ a {
   transition   : 0.2s;
 }
 
+.item-option:not(:last-child) {
+  margin-bottom: 5px;
+}
+
 .item-option input[type="number"] {
   background-color : var(--foreground1);
   text-align       : center;
